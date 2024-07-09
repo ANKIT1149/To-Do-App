@@ -1,15 +1,15 @@
 import cookieParser from "cookie-parser";
 import express from "express";
-import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import Authrouter from "./Routes/Auth.Routes.js";
 dotenv.config();
 
 const app = express();
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors());
+app.listen(3000, (req, res) => {
+  console.log(`Server is running on port :${process.env.PORT}`);
+});
 
 mongoose
   .connect(process.env.MONGODBURL)
@@ -20,6 +20,20 @@ mongoose
     console.log(error);
   });
 
-app.listen(process.env.PORT, (req, res) => {
-  console.log(`Server is running on port :${process.env.PORT}`);
+app.use(cookieParser());
+app.use(express.json());
+
+app.use("/todo/auth", Authrouter);
+
+
+
+
+app.use((err, req, res, next) => {
+  const message = err.message || "Internal server Error";
+  const statuscode = err.statuscode || 500;
+  res.status(statuscode).json({
+    success: false,
+    message,
+    statuscode,
+  });
 });
